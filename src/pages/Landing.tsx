@@ -59,18 +59,17 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 gradient-primary opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, rgba(248, 250, 255, 0.04), rgba(255, 255, 255, 0.04))' }}>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <Shield className="h-4 w-4" />
               Nền tảng bảo vệ an toàn học sinh
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight" style={{ color: '#111' }}>
               Bảo vệ học sinh khỏi
-              <span className="gradient-primary bg-clip-text text-transparent"> rủi ro trực tuyến</span>
+              <span style={{ color: '#111' }}> rủi ro trực tuyến</span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -94,7 +93,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">
@@ -126,7 +125,7 @@ export default function Landing() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-24">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
@@ -166,7 +165,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Card className="shadow-medium">
             <CardContent className="p-12">
