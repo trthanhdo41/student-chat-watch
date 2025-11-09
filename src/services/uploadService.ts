@@ -54,6 +54,7 @@ export async function uploadChatImage(file: File, userId: string): Promise<Uploa
 
 /**
  * Get all uploads for a user
+ * Converts snake_case from database to camelCase for frontend
  */
 export async function getUserUploads(userId: string) {
   const { data, error } = await supabase
@@ -66,7 +67,20 @@ export async function getUserUploads(userId: string) {
     .order('uploaded_at', { ascending: false });
 
   if (error) throw error;
-  return data;
+
+  // Convert snake_case to camelCase for ai_analysis
+  const convertedData = data?.map(upload => ({
+    ...upload,
+    ai_analysis: upload.ai_analysis?.map((analysis: any) => ({
+      ...analysis,
+      riskLevel: analysis.risk_level,
+      riskType: analysis.risk_type,
+      confidenceScore: analysis.confidence_score,
+      extractedText: analysis.extracted_text,
+    }))
+  }));
+
+  return convertedData;
 }
 
 /**

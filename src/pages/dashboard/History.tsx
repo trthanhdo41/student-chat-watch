@@ -91,8 +91,8 @@ export default function History() {
   const filteredHistory = uploads.filter(item => {
     const analysis = item.ai_analysis?.[0];
     const matchesSearch = analysis?.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         analysis?.extracted_text?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRisk = riskFilter === 'all' || analysis?.risk_level === riskFilter;
+                         analysis?.extractedText?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRisk = riskFilter === 'all' || analysis?.riskLevel === riskFilter;
     return matchesSearch && matchesRisk;
   });
 
@@ -172,6 +172,7 @@ export default function History() {
                   <TableBody>
                     {filteredHistory.map((item) => {
                       const analysis = item.ai_analysis?.[0];
+
                       return (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">
@@ -190,27 +191,27 @@ export default function History() {
                             />
                           </TableCell>
                           <TableCell>
-                            {analysis?.risk_type || '-'}
+                            {analysis?.riskType || '-'}
                           </TableCell>
                           <TableCell>
                             <span className={`font-semibold ${
-                              analysis?.risk_level === 'low' ? 'text-green-600' :
-                              analysis?.risk_level === 'medium' ? 'text-yellow-600' :
+                              analysis?.riskLevel === 'low' ? 'text-green-600' :
+                              analysis?.riskLevel === 'medium' ? 'text-yellow-600' :
                               'text-red-600'
                             }`}>
-                              {analysis?.risk_level === 'low' ? 'An toàn' :
-                               analysis?.risk_level === 'medium' ? 'Hơi lo' :
-                               analysis?.risk_level === 'high' ? 'Nguy hiểm' : '-'}
+                              {analysis?.riskLevel === 'low' ? 'An toàn' :
+                               analysis?.riskLevel === 'medium' ? 'Hơi lo' :
+                               analysis?.riskLevel === 'high' ? 'Nguy hiểm' : '-'}
                             </span>
                           </TableCell>
                           <TableCell>
                             <span className="text-lg font-bold">
-                              {analysis?.confidence_score || 0}%
+                              {analysis?.confidenceScore || 0}%
                             </span>
                           </TableCell>
                           <TableCell>
                             {item.status === 'analyzed' ? (
-                              <RiskBadge riskLevel={analysis?.risk_level || 'low'} />
+                              <RiskBadge riskLevel={analysis?.riskLevel || 'low'} />
                             ) : item.status === 'analyzing' ? (
                               <span className="text-sm text-blue-600">Đang phân tích...</span>
                             ) : item.status === 'error' ? (
@@ -272,26 +273,26 @@ export default function History() {
                       <div>
                         <span className="text-sm font-medium text-muted-foreground">Mức độ nguy hiểm:</span>
                         <p className={`text-xl font-bold mt-1 ${
-                          selectedItem.ai_analysis[0].risk_level === 'low' ? 'text-green-600' :
-                          selectedItem.ai_analysis[0].risk_level === 'medium' ? 'text-yellow-600' :
+                          selectedItem.ai_analysis[0].riskLevel === 'low' ? 'text-green-600' :
+                          selectedItem.ai_analysis[0].riskLevel === 'medium' ? 'text-yellow-600' :
                           'text-red-600'
                         }`}>
-                          {selectedItem.ai_analysis[0].risk_level === 'low' ? 'An toàn' :
-                           selectedItem.ai_analysis[0].risk_level === 'medium' ? 'Hơi lo' :
+                          {selectedItem.ai_analysis[0].riskLevel === 'low' ? 'An toàn' :
+                           selectedItem.ai_analysis[0].riskLevel === 'medium' ? 'Hơi lo' :
                            'Nguy hiểm'}
                         </p>
                       </div>
                       <div>
                         <span className="text-sm font-medium text-muted-foreground">Tình huống:</span>
-                        <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].risk_type}</p>
+                        <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].riskType}</p>
                       </div>
                       <div>
                         <span className="text-sm font-medium text-muted-foreground">Độ chắc chắn:</span>
-                        <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].confidence_score}%</p>
+                        <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].confidenceScore}%</p>
                       </div>
                       <div>
                         <span className="text-sm font-medium text-muted-foreground">Kết quả:</span>
-                        <RiskBadge riskLevel={selectedItem.ai_analysis[0].risk_level} size="lg" />
+                        <RiskBadge riskLevel={selectedItem.ai_analysis[0].riskLevel || 'low'} size="lg" />
                       </div>
                     </div>
 
@@ -302,11 +303,11 @@ export default function History() {
                       </p>
                     </div>
 
-                    {selectedItem.ai_analysis[0].extracted_text && (
+                    {selectedItem.ai_analysis[0].extractedText && (
                       <div>
                         <span className="font-medium">Những lời trong tin nhắn:</span>
                         <p className="text-sm text-muted-foreground mt-2 p-4 bg-gray-50 rounded-lg border whitespace-pre-wrap leading-relaxed">
-                          {selectedItem.ai_analysis[0].extracted_text}
+                          {selectedItem.ai_analysis[0].extractedText}
                         </p>
                       </div>
                     )}

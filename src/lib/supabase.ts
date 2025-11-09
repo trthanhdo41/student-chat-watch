@@ -32,5 +32,10 @@ export interface AIAnalysis {
   extracted_text: string;
   summary: string;
   analyzed_at: string;
+  // Converted camelCase properties (added by uploadService)
+  riskLevel?: 'high' | 'medium' | 'low';
+  riskType?: string;
+  confidenceScore?: number;
+  extractedText?: string;
 }
 
