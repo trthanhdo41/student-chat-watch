@@ -73,20 +73,38 @@ export async function getUserUploads(userId: string) {
   console.log('first analysis:', data?.[0]?.ai_analysis?.[0]);
 
   // Convert snake_case to camelCase for ai_analysis
+  // IMPORTANT: We DON'T spread the original analysis to avoid having both snake_case and camelCase
   const convertedData = data?.map(upload => ({
     ...upload,
     ai_analysis: upload.ai_analysis?.map((analysis: any) => {
+      // Create a clean object with ONLY the properties we need
       const converted = {
-        ...analysis,
-        riskLevel: analysis.risk_level,
-        riskType: analysis.risk_type,
+        id: analysis.id,
+        upload_id: analysis.upload_id,
+        analyzed_at: analysis.analyzed_at,
+        // Keep snake_case for compatibility
+        risk_level: analysis.risk_level?.trim() as 'high' | 'medium' | 'low',
+        risk_type: analysis.risk_type?.trim(),
+        confidence_score: analysis.confidence_score,
+        extracted_text: analysis.extracted_text,
+        summary: analysis.summary,
+        // Add camelCase versions
+        riskLevel: analysis.risk_level?.trim() as 'high' | 'medium' | 'low',
+        riskType: analysis.risk_type?.trim(),
         confidenceScore: analysis.confidence_score,
         extractedText: analysis.extracted_text,
       };
+
       console.log('=== CONVERTED ANALYSIS ===');
-      console.log('original:', analysis);
-      console.log('converted:', converted);
-      console.log('converted.riskLevel:', converted.riskLevel);
+      console.log('original risk_level:', `"${analysis.risk_level}"`);
+      console.log('original risk_type:', `"${analysis.risk_type}"`);
+      console.log('converted.riskLevel:', `"${converted.riskLevel}"`);
+      console.log('converted.riskType:', `"${converted.riskType}"`);
+      console.log('typeof converted.riskLevel:', typeof converted.riskLevel);
+      console.log('riskLevel === "low":', converted.riskLevel === 'low');
+      console.log('riskLevel === "medium":', converted.riskLevel === 'medium');
+      console.log('riskLevel === "high":', converted.riskLevel === 'high');
+
       return converted;
     })
   }));

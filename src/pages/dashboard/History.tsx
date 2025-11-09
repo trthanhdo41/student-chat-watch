@@ -172,14 +172,26 @@ export default function History() {
                     {filteredHistory.map((item) => {
                       const analysis = item.ai_analysis?.[0];
 
-                      // DEBUG: Log analysis data
+                      // DEBUG: Log analysis data with detailed comparison
                       console.log('=== HISTORY ITEM DEBUG ===');
                       console.log('item.id:', item.id);
                       console.log('analysis:', analysis);
-                      console.log('analysis.riskLevel:', analysis?.riskLevel);
-                      console.log('analysis.riskType:', analysis?.riskType);
-                      console.log('analysis.risk_level:', (analysis as any)?.risk_level);
-                      console.log('analysis.risk_type:', (analysis as any)?.risk_type);
+                      if (analysis) {
+                        console.log('analysis.riskLevel:', `"${analysis.riskLevel}"`);
+                        console.log('analysis.riskType:', `"${analysis.riskType}"`);
+                        console.log('analysis.risk_level:', `"${(analysis as any).risk_level}"`);
+                        console.log('analysis.risk_type:', `"${(analysis as any).risk_type}"`);
+                        console.log('typeof analysis.riskLevel:', typeof analysis.riskLevel);
+                        console.log('riskLevel === "low":', analysis.riskLevel === 'low');
+                        console.log('riskLevel === "medium":', analysis.riskLevel === 'medium');
+                        console.log('riskLevel === "high":', analysis.riskLevel === 'high');
+
+                        // Test what will be displayed
+                        const displayText = analysis.riskLevel === 'low' ? 'An toàn' :
+                                          analysis.riskLevel === 'medium' ? 'Hơi lo' :
+                                          analysis.riskLevel === 'high' ? 'Nguy hiểm' : '-';
+                        console.log('Will display:', displayText);
+                      }
 
                       return (
                         <TableRow key={item.id}>
@@ -202,14 +214,20 @@ export default function History() {
                             {analysis?.riskType || '-'}
                           </TableCell>
                           <TableCell>
+                            {/* DEBUG: Show raw value */}
+                            <div className="text-xs text-gray-400 mb-1">
+                              Raw: "{analysis?.riskLevel}" (type: {typeof analysis?.riskLevel})
+                            </div>
                             <span className={`font-semibold ${
                               analysis?.riskLevel === 'low' ? 'text-green-600' :
                               analysis?.riskLevel === 'medium' ? 'text-yellow-600' :
-                              'text-red-600'
+                              analysis?.riskLevel === 'high' ? 'text-red-600' :
+                              'text-gray-600'
                             }`}>
                               {analysis?.riskLevel === 'low' ? 'An toàn' :
                                analysis?.riskLevel === 'medium' ? 'Hơi lo' :
-                               analysis?.riskLevel === 'high' ? 'Nguy hiểm' : '-'}
+                               analysis?.riskLevel === 'high' ? 'Nguy hiểm' :
+                               analysis ? `Không xác định (${analysis.riskLevel})` : '-'}
                             </span>
                           </TableCell>
                           <TableCell>
@@ -289,11 +307,13 @@ export default function History() {
                         <p className={`text-xl font-bold mt-1 ${
                           selectedItem.ai_analysis[0].riskLevel === 'low' ? 'text-green-600' :
                           selectedItem.ai_analysis[0].riskLevel === 'medium' ? 'text-yellow-600' :
-                          'text-red-600'
+                          selectedItem.ai_analysis[0].riskLevel === 'high' ? 'text-red-600' :
+                          'text-gray-600'
                         }`}>
                           {selectedItem.ai_analysis[0].riskLevel === 'low' ? 'An toàn' :
                            selectedItem.ai_analysis[0].riskLevel === 'medium' ? 'Hơi lo' :
-                           'Nguy hiểm'}
+                           selectedItem.ai_analysis[0].riskLevel === 'high' ? 'Nguy hiểm' :
+                           `Không xác định (${selectedItem.ai_analysis[0].riskLevel})`}
                         </p>
                       </div>
                       <div>

@@ -211,10 +211,8 @@ export default function UploadChat() {
                     )}
                   </div>
                   <div>
-                    <CardTitle className="text-2xl mb-2">
-                      {result.riskLevel === 'low' ? 'Tin nhắn an toàn!' :
-                       result.riskLevel === 'medium' ? 'Cần cẩn thận!' :
-                       'Nguy hiểm!'}
+                    <CardTitle className="text-2xl mb-2 capitalize">
+                      {result.riskType}
                     </CardTitle>
                     <RiskBadge riskLevel={result.riskLevel} size="lg" />
                   </div>
@@ -231,7 +229,7 @@ export default function UploadChat() {
                 />
               </div>
 
-              {/* Risk Type */}
+              {/* Summary */}
               <Alert className={`border-2 ${
                 result.riskLevel === 'low' ? "border-green-500 bg-green-50 dark:bg-green-950" :
                 result.riskLevel === 'medium' ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950" :
@@ -246,7 +244,7 @@ export default function UploadChat() {
                     <AlertTriangle className="h-6 w-6 text-red-600 mt-0.5" />
                   )}
                   <div className="flex-1">
-                    <p className="font-bold mb-2 text-lg">{result.riskType}</p>
+                    <p className="font-bold mb-2 text-lg">Nhận xét của AI</p>
                     <AlertDescription className="text-base leading-relaxed">
                       {result.summary}
                     </AlertDescription>
