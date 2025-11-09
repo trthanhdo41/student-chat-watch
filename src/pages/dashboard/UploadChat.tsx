@@ -68,6 +68,12 @@ export default function UploadChat() {
       // Step 2: Analyze image
       setAnalyzing(true);
       const analysisResult = await analyzeImage(newUploadId, imageUrl);
+
+      console.log('=== ANALYSIS RESULT IN COMPONENT ===');
+      console.log('analysisResult:', analysisResult);
+      console.log('riskLevel:', analysisResult.riskLevel);
+      console.log('riskType:', analysisResult.riskType);
+
       setResult(analysisResult);
 
       toast({

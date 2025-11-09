@@ -78,7 +78,7 @@ Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
   "summary": "Giải thích ngắn gọn bằng tiếng Việt đơn giản cho học sinh lớp 1-5 hiểu được"
 }`;
 
-    const result = await model.generateContent([
+    const geminiResult = await model.generateContent([
       {
         inlineData: {
           mimeType: blob.type,
@@ -88,7 +88,7 @@ Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
       { text: prompt },
     ]);
 
-    const responseText = result.response.text();
+    const responseText = geminiResult.response.text();
     console.log('Gemini response:', responseText);
 
     // Parse JSON response
@@ -99,25 +99,43 @@ Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
 
     const analysis = JSON.parse(jsonMatch[0]);
 
-    // Validate and normalize riskLevel
+    console.log('=== RAW ANALYSIS FROM GEMINI ===');
+    console.log('analysis:', analysis);
+    console.log('analysis.riskLevel:', analysis.riskLevel);
+    console.log('typeof analysis.riskLevel:', typeof analysis.riskLevel);
+
+    // Validate and normalize riskLevel - TRIM whitespace and lowercase
     let riskLevel: 'high' | 'medium' | 'low' = 'low';
-    if (analysis.riskLevel === 'high' || analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') {
-      riskLevel = analysis.riskLevel;
+    const rawRiskLevel = String(analysis.riskLevel || 'low').trim().toLowerCase();
+
+    if (rawRiskLevel === 'high') {
+      riskLevel = 'high';
+    } else if (rawRiskLevel === 'medium') {
+      riskLevel = 'medium';
+    } else {
+      riskLevel = 'low';
     }
 
     // Ensure riskType matches riskLevel
-    let riskType = analysis.riskType || 'an toàn';
+    let riskType = String(analysis.riskType || 'an toàn').trim();
     if (riskLevel === 'low' && riskType !== 'an toàn') {
       riskType = 'an toàn'; // Force safe type for low risk
     }
 
-    return {
+    const result = {
       extractedText: analysis.extractedText || 'Không đọc được nội dung',
       riskLevel,
       riskType,
-      confidenceScore: analysis.confidenceScore || 50,
+      confidenceScore: Number(analysis.confidenceScore) || 50,
       summary: analysis.summary || 'Không có nhận xét',
     };
+
+    console.log('=== NORMALIZED RESULT ===');
+    console.log('result:', result);
+    console.log('result.riskLevel:', result.riskLevel);
+    console.log('typeof result.riskLevel:', typeof result.riskLevel);
+
+    return result;
   } catch (error: any) {
     console.error('Gemini analysis error:', error);
 
