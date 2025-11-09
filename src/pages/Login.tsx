@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,16 +23,24 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    // Mock login
-    setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ username: formData.username, name: "Nguyễn Văn A" }));
+    try {
+      await signIn(formData.username, formData.password);
+
       toast({
         title: "Đăng nhập thành công!",
         description: "Chào mừng trở lại",
       });
       navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast({
+        title: "Lỗi đăng nhập",
+        description: "Tên đăng nhập hoặc mật khẩu không đúng",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

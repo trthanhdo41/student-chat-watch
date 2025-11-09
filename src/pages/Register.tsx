@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -37,16 +39,40 @@ export default function Register() {
       return;
     }
 
-    // Mock registration
-    setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ username: formData.username, name: formData.fullName }));
+    if (formData.password.length < 6) {
+      toast({
+        title: "Lỗi",
+        description: "Mật khẩu phải có ít nhất 6 ký tự",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await signUp(
+        formData.username,
+        formData.password,
+        formData.fullName,
+        formData.parentPhone,
+        formData.teacherPhone
+      );
+
       toast({
         title: "Đăng ký thành công!",
         description: "Chào mừng bạn đến với SafeChat",
       });
       navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Lỗi đăng ký",
+        description: error.message || "Có lỗi xảy ra. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (field: string, value: string) => {

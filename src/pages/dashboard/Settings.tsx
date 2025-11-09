@@ -1,35 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Save } from "lucide-react";
+import { Camera, Save, LogOut, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
   const { toast } = useToast();
+  const { user, userProfile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [profile, setProfile] = useState({
-    name: "Nguyễn Văn A",
-    email: "student@example.com",
-    phone: "0912345678",
-    avatar: "",
+    fullName: "",
+    username: "",
+    parentPhone: "",
+    teacherPhone: "",
   });
+
   const [passwords, setPasswords] = useState({
     current: "",
     new: "",
     confirm: "",
   });
 
-  const handleProfileSave = () => {
-    toast({
-      title: "Đã lưu thay đổi!",
-      description: "Thông tin cá nhân đã được cập nhật",
-    });
+  useEffect(() => {
+    if (userProfile) {
+      setProfile({
+        fullName: userProfile.full_name,
+        username: userProfile.username,
+        parentPhone: userProfile.parent_phone,
+        teacherPhone: userProfile.teacher_phone,
+      });
+    }
+  }, [userProfile]);
+
+  const handleProfileSave = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('users')
+        .update({
+          full_name: profile.fullName,
+          parent_phone: profile.parentPhone,
+          teacher_phone: profile.teacherPhone,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Đã lưu thay đổi!",
+        description: "Thông tin cá nhân đã được cập nhật",
+      });
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể cập nhật. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (passwords.new !== passwords.confirm) {
       toast({
         title: "Lỗi",
@@ -38,11 +85,57 @@ export default function Settings() {
       });
       return;
     }
-    toast({
-      title: "Đã đổi mật khẩu!",
-      description: "Mật khẩu của bạn đã được cập nhật",
-    });
-    setPasswords({ current: "", new: "", confirm: "" });
+
+    if (passwords.new.length < 6) {
+      toast({
+        title: "Lỗi",
+        description: "Mật khẩu phải có ít nhất 6 ký tự",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: passwords.new,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Đã đổi mật khẩu!",
+        description: "Mật khẩu của bạn đã được cập nhật",
+      });
+      setPasswords({ current: "", new: "", confirm: "" });
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể đổi mật khẩu. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Đã đăng xuất",
+        description: "Hẹn gặp lại bạn!",
+      });
+      navigate('/');
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể đăng xuất. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -56,78 +149,75 @@ export default function Settings() {
           </p>
         </div>
 
-        {/* Avatar Upload */}
-        <Card className="shadow-medium">
-          <CardHeader>
-            <CardTitle>Ảnh đại diện</CardTitle>
-            <CardDescription>
-              Tải lên ảnh đại diện của bạn
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <div className="relative group">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile.avatar} />
-                  <AvatarFallback className="text-2xl">
-                    {profile.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <button className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera className="h-6 w-6 text-white" />
-                </button>
-              </div>
-              <div>
-                <Button variant="outline">
-                  Tải ảnh lên
-                </Button>
-                <p className="text-sm text-muted-foreground mt-2">
-                  JPG, PNG hoặc GIF. Tối đa 2MB.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Personal Information */}
+        {/* Profile Info */}
         <Card className="shadow-medium">
           <CardHeader>
             <CardTitle>Thông tin cá nhân</CardTitle>
             <CardDescription>
-              Cập nhật thông tin cơ bản của bạn
+              Cập nhật thông tin cá nhân của bạn
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Họ và tên</Label>
+            <div className="flex items-center gap-6 pb-4 border-b">
+              <Avatar className="h-20 w-20">
+                <AvatarFallback className="text-2xl bg-primary/10">
+                  {profile.fullName?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold text-lg">{profile.fullName}</p>
+                <p className="text-sm text-muted-foreground">@{profile.username}</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="fullName">Họ và tên</Label>
                 <Input
-                  id="name"
-                  value={profile.name}
-                  onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                  id="fullName"
+                  value={profile.fullName}
+                  onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                  placeholder="Nhập họ tên"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Số điện thoại</Label>
+
+              <div>
+                <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input
-                  id="phone"
-                  value={profile.phone}
-                  onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                  id="username"
+                  value={profile.username}
+                  disabled
+                  className="bg-gray-50"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tên đăng nhập không thể thay đổi
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="parentPhone">Số điện thoại phụ huynh</Label>
+                <Input
+                  id="parentPhone"
+                  value={profile.parentPhone}
+                  onChange={(e) => setProfile({ ...profile, parentPhone: e.target.value })}
+                  placeholder="Nhập số điện thoại phụ huynh"
                 />
               </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="email">Email</Label>
+
+              <div>
+                <Label htmlFor="teacherPhone">Số điện thoại giáo viên</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={profile.email}
-                  onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                  id="teacherPhone"
+                  value={profile.teacherPhone}
+                  onChange={(e) => setProfile({ ...profile, teacherPhone: e.target.value })}
+                  placeholder="Nhập số điện thoại giáo viên"
                 />
               </div>
             </div>
-            <Button onClick={handleProfileSave}>
+
+            <Button onClick={handleProfileSave} disabled={loading} className="w-full">
               <Save className="mr-2 h-4 w-4" />
-              Lưu thay đổi
+              {loading ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </CardContent>
         </Card>
@@ -144,34 +234,101 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={passwords.current}
-                  onChange={(e) => setPasswords(prev => ({ ...prev, current: e.target.value }))}
-                />
+                <div className="relative">
+                  <Input
+                    id="currentPassword"
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={passwords.current}
+                    onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                    placeholder="Nhập mật khẩu hiện tại"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={passwords.new}
-                  onChange={(e) => setPasswords(prev => ({ ...prev, new: e.target.value }))}
-                />
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    value={passwords.new}
+                    onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                    placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwords.confirm}
-                  onChange={(e) => setPasswords(prev => ({ ...prev, confirm: e.target.value }))}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={passwords.confirm}
+                    onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                    placeholder="Nhập lại mật khẩu mới"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
-            <Button onClick={handlePasswordChange}>
-              Đổi mật khẩu
+
+            <Button onClick={handlePasswordChange} disabled={loading} className="w-full">
+              {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Logout */}
+        <Card className="shadow-medium border-red-200">
+          <CardHeader>
+            <CardTitle className="text-red-600">Đăng xuất</CardTitle>
+            <CardDescription>
+              Đăng xuất khỏi tài khoản của bạn
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={handleLogout} variant="destructive" className="w-full">
+              <LogOut className="mr-2 h-4 w-4" />
+              Đăng xuất
             </Button>
           </CardContent>
         </Card>

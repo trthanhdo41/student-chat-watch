@@ -7,23 +7,35 @@ import { RiskBadge } from "@/components/RiskBadge";
 import { Loader2, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { uploadChatImage } from "@/services/uploadService";
+import { analyzeImage } from "@/services/aiService";
+import { useNavigate } from "react-router-dom";
 
 interface AnalysisResult {
-  score: number;
-  recommendation: string;
-  details: string[];
+  riskLevel: 'high' | 'medium' | 'low';
+  riskType: string;
+  confidenceScore: number;
+  extractedText: string;
+  summary: string;
 }
 
 export default function UploadChat() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [uploadId, setUploadId] = useState<string>("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const handleFileSelect = (selectedFile: File) => {
     setFile(selectedFile);
     setResult(null);
-    
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
@@ -35,45 +47,44 @@ export default function UploadChat() {
     setFile(null);
     setPreview("");
     setResult(null);
+    setUploadId("");
   };
 
   const handleAnalyze = async () => {
-    if (!file) return;
-    
-    setAnalyzing(true);
-    
-    // Mock API call
-    setTimeout(() => {
-      const mockScore = Math.floor(Math.random() * 100);
-      const mockResult: AnalysisResult = {
-        score: mockScore,
-        recommendation: mockScore < 30 
-          ? "Cuộc trò chuyện này có vẻ an toàn. Hãy tiếp tục duy trì sự thận trọng."
-          : mockScore < 70
-          ? "Một số nội dung cần chú ý. Hãy chia sẻ với phụ huynh hoặc giáo viên nếu cần."
-          : "Phát hiện nội dung có nguy cơ cao. Vui lòng thông báo ngay với người lớn!",
-        details: mockScore < 30
-          ? [
-              "Không phát hiện ngôn ngữ bạo lực",
-              "Không có dấu hiệu quấy rối",
-              "Nội dung phù hợp với lứa tuổi",
-            ]
-          : mockScore < 70
-          ? [
-              "Phát hiện một số từ ngữ không phù hợp",
-              "Nội dung cần được giám sát",
-              "Nên trao đổi với người lớn",
-            ]
-          : [
-              "Phát hiện ngôn ngữ bạo lực hoặc đe dọa",
-              "Nội dung có thể gây hại",
-              "Cần thông báo ngay cho phụ huynh/giáo viên",
-            ],
-      };
-      
-      setResult(mockResult);
+    if (!file || !user) return;
+
+    try {
+      // Step 1: Upload image
+      setUploading(true);
+      const { uploadId: newUploadId, imageUrl } = await uploadChatImage(file, user.id);
+      setUploadId(newUploadId);
+      setUploading(false);
+
+      toast({
+        title: "Upload thành công!",
+        description: "Đang bắt đầu phân tích...",
+      });
+
+      // Step 2: Analyze image
+      setAnalyzing(true);
+      const analysisResult = await analyzeImage(newUploadId, imageUrl);
+      setResult(analysisResult);
+
+      toast({
+        title: "Phân tích hoàn tất!",
+        description: "Kết quả đã được lưu vào lịch sử.",
+      });
+    } catch (error: any) {
+      console.error('Analysis error:', error);
+      toast({
+        title: "Lỗi",
+        description: error.message || "Có lỗi xảy ra. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
       setAnalyzing(false);
-    }, 3000);
+    }
   };
 
   return (
@@ -103,13 +114,18 @@ export default function UploadChat() {
             />
             
             {file && !result && (
-              <Button 
-                onClick={handleAnalyze} 
-                disabled={analyzing}
+              <Button
+                onClick={handleAnalyze}
+                disabled={uploading || analyzing}
                 className="w-full"
                 size="lg"
               >
-                {analyzing ? (
+                {uploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Đang tải lên...
+                  </>
+                ) : analyzing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Đang phân tích...
@@ -122,21 +138,26 @@ export default function UploadChat() {
           </CardContent>
         </Card>
 
-        {/* Analysis Progress */}
-        {analyzing && (
+        {/* Upload/Analysis Progress */}
+        {(uploading || analyzing) && (
           <Card className="shadow-medium animate-scale-in">
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Loader2 className="h-6 w-6 text-primary animate-spin" />
                   <div className="flex-1">
-                    <p className="font-medium">Đang phân tích nội dung...</p>
+                    <p className="font-medium">
+                      {uploading ? "Đang tải ảnh lên..." : "Đang phân tích nội dung..."}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      AI đang xử lý và đánh giá tin nhắn của bạn
+                      {uploading
+                        ? "Đang lưu ảnh vào hệ thống"
+                        : "AI đang xử lý và đánh giá tin nhắn của bạn"
+                      }
                     </p>
                   </div>
                 </div>
-                <Progress value={66} className="h-2" />
+                <Progress value={uploading ? 33 : 66} className="h-2" />
               </div>
             </CardContent>
           </Card>
@@ -148,64 +169,74 @@ export default function UploadChat() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Kết quả phân tích</CardTitle>
-                <RiskBadge score={result.score} size="lg" />
+                <RiskBadge score={result.confidenceScore} size="lg" />
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Risk Score */}
+              {/* Risk Level */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Chỉ số rủi ro</span>
-                  <span className="text-2xl font-bold">{result.score}%</span>
+                  <span className="text-sm font-medium">Mức độ rủi ro</span>
+                  <span className={`text-2xl font-bold ${
+                    result.riskLevel === 'low' ? 'text-green-600' :
+                    result.riskLevel === 'medium' ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {result.riskLevel === 'low' ? 'Thấp' :
+                     result.riskLevel === 'medium' ? 'Trung bình' :
+                     'Cao'}
+                  </span>
                 </div>
-                <Progress 
-                  value={result.score} 
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Độ tin cậy</span>
+                  <span className="text-lg font-semibold">{result.confidenceScore}%</span>
+                </div>
+                <Progress
+                  value={result.confidenceScore}
                   className="h-3"
                 />
               </div>
 
-              {/* Recommendation */}
+              {/* Risk Type */}
               <Alert className={
-                result.score < 30 ? "border-success bg-success/5" :
-                result.score < 70 ? "border-warning bg-warning/5" :
-                "border-destructive bg-destructive/5"
+                result.riskLevel === 'low' ? "border-green-500 bg-green-50" :
+                result.riskLevel === 'medium' ? "border-yellow-500 bg-yellow-50" :
+                "border-red-500 bg-red-50"
               }>
                 <div className="flex gap-3">
-                  {result.score < 30 ? (
-                    <CheckCircle className="h-5 w-5 text-success mt-0.5" />
-                  ) : result.score < 70 ? (
-                    <Info className="h-5 w-5 text-warning mt-0.5" />
+                  {result.riskLevel === 'low' ? (
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                  ) : result.riskLevel === 'medium' ? (
+                    <Info className="h-5 w-5 text-yellow-600 mt-0.5" />
                   ) : (
-                    <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
+                    <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
                   )}
-                  <AlertDescription className="text-base">
-                    {result.recommendation}
-                  </AlertDescription>
+                  <div className="flex-1">
+                    <p className="font-semibold mb-1">Loại rủi ro: {result.riskType}</p>
+                    <AlertDescription className="text-sm">
+                      {result.summary}
+                    </AlertDescription>
+                  </div>
                 </div>
               </Alert>
 
-              {/* Details */}
-              <div>
-                <h3 className="font-semibold mb-3">Chi tiết phân tích:</h3>
-                <ul className="space-y-2">
-                  {result.details.map((detail, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-primary" />
-                      </div>
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* Extracted Text */}
+              {result.extractedText && (
+                <div>
+                  <h3 className="font-semibold mb-3">Nội dung đã trích xuất:</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg border">
+                    <p className="text-sm whitespace-pre-wrap">{result.extractedText}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-4 pt-4">
                 <Button onClick={handleClear} variant="outline" className="flex-1">
                   Phân tích ảnh khác
                 </Button>
-                <Button className="flex-1">
-                  Lưu kết quả
+                <Button onClick={() => navigate('/dashboard/history')} className="flex-1">
+                  Xem lịch sử
                 </Button>
               </div>
             </CardContent>
