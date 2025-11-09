@@ -68,17 +68,32 @@ export async function getUserUploads(userId: string) {
 
   if (error) throw error;
 
+  console.log('=== RAW DATA FROM DATABASE ===');
+  console.log('data:', data);
+  console.log('first analysis:', data?.[0]?.ai_analysis?.[0]);
+
   // Convert snake_case to camelCase for ai_analysis
   const convertedData = data?.map(upload => ({
     ...upload,
-    ai_analysis: upload.ai_analysis?.map((analysis: any) => ({
-      ...analysis,
-      riskLevel: analysis.risk_level,
-      riskType: analysis.risk_type,
-      confidenceScore: analysis.confidence_score,
-      extractedText: analysis.extracted_text,
-    }))
+    ai_analysis: upload.ai_analysis?.map((analysis: any) => {
+      const converted = {
+        ...analysis,
+        riskLevel: analysis.risk_level,
+        riskType: analysis.risk_type,
+        confidenceScore: analysis.confidence_score,
+        extractedText: analysis.extracted_text,
+      };
+      console.log('=== CONVERTED ANALYSIS ===');
+      console.log('original:', analysis);
+      console.log('converted:', converted);
+      console.log('converted.riskLevel:', converted.riskLevel);
+      return converted;
+    })
   }));
+
+  console.log('=== CONVERTED DATA ===');
+  console.log('convertedData:', convertedData);
+  console.log('first converted analysis:', convertedData?.[0]?.ai_analysis?.[0]);
 
   return convertedData;
 }

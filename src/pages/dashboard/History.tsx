@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RiskBadge } from "@/components/RiskBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Calendar, Loader2, Trash2 } from "lucide-react";
+import { Search, Loader2, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -211,7 +210,13 @@ export default function History() {
                           </TableCell>
                           <TableCell>
                             {item.status === 'analyzed' ? (
-                              <RiskBadge riskLevel={analysis?.riskLevel || 'low'} />
+                              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                                analysis?.riskLevel === 'low' ? 'bg-green-100 text-green-700 border border-green-300' :
+                                analysis?.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
+                                'bg-red-100 text-red-700 border border-red-300'
+                              }`}>
+                                {analysis?.riskType || 'Chưa xác định'}
+                              </div>
                             ) : item.status === 'analyzing' ? (
                               <span className="text-sm text-blue-600">Đang phân tích...</span>
                             ) : item.status === 'error' ? (
@@ -292,7 +297,13 @@ export default function History() {
                       </div>
                       <div>
                         <span className="text-sm font-medium text-muted-foreground">Kết quả:</span>
-                        <RiskBadge riskLevel={selectedItem.ai_analysis[0].riskLevel || 'low'} size="lg" />
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-base font-semibold mt-1 ${
+                          selectedItem.ai_analysis[0].riskLevel === 'low' ? 'bg-green-100 text-green-700 border-2 border-green-300' :
+                          selectedItem.ai_analysis[0].riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' :
+                          'bg-red-100 text-red-700 border-2 border-red-300'
+                        }`}>
+                          {selectedItem.ai_analysis[0].riskType || 'Chưa xác định'}
+                        </div>
                       </div>
                     </div>
 
