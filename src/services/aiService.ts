@@ -63,10 +63,11 @@ CÁC TÌNH HUỐNG NGUY HIỂM CẦN PHÁT HIỆN:
 - **không phù hợp**: Có hình ảnh/lời nói về đánh nhau, cảnh xấu, thuốc lá, rượu
 - **an toàn**: Tin nhắn bình thường, chat với bạn bè, gia đình
 
-MỨC ĐỘ NGUY HIỂM:
-- **high**: RẤT NGUY HIỂM! Em cần nói với bố mẹ/cô giáo NGAY (lừa đảo, người lạ xấu, bị đe dọa)
-- **medium**: Hơi lo! Em nên nói với bố mẹ/cô giáo (bạn nói xấu, nội dung không tốt)
-- **low**: An toàn, không sao cả!
+QUY TẮC QUAN TRỌNG:
+- Nếu tin nhắn bình thường, chat với bạn/gia đình → riskLevel = "low", riskType = "an toàn"
+- Nếu có dấu hiệu lừa đảo, người lạ xấu, đe dọa → riskLevel = "high"
+- Nếu có lời nói xấu, nội dung không tốt → riskLevel = "medium"
+- Tin nhắn về học tập, chơi game, nói chuyện bình thường → LUÔN LÀ "low" và "an toàn"
 
 Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
 {
@@ -98,10 +99,22 @@ Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
 
     const analysis = JSON.parse(jsonMatch[0]);
 
+    // Validate and normalize riskLevel
+    let riskLevel: 'high' | 'medium' | 'low' = 'low';
+    if (analysis.riskLevel === 'high' || analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') {
+      riskLevel = analysis.riskLevel;
+    }
+
+    // Ensure riskType matches riskLevel
+    let riskType = analysis.riskType || 'an toàn';
+    if (riskLevel === 'low' && riskType !== 'an toàn') {
+      riskType = 'an toàn'; // Force safe type for low risk
+    }
+
     return {
       extractedText: analysis.extractedText || 'Không đọc được nội dung',
-      riskLevel: analysis.riskLevel || 'low',
-      riskType: analysis.riskType || 'safe',
+      riskLevel,
+      riskType,
       confidenceScore: analysis.confidenceScore || 50,
       summary: analysis.summary || 'Không có nhận xét',
     };
