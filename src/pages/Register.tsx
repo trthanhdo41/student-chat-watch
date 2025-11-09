@@ -5,15 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
-const schools = [
-  "THPT Trần Phú",
-  "THPT Nguyễn Huệ",
-  "THPT Lê Quý Đôn",
-  "THPT Chu Văn An",
-];
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,11 +13,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    phone: "",
-    email: "",
+    username: "",
     password: "",
     confirmPassword: "",
-    school: "",
     parentPhone: "",
     teacherPhone: "",
   });
@@ -47,7 +37,7 @@ export default function Register() {
 
     // Mock registration
     setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ email: formData.email, name: formData.fullName }));
+      localStorage.setItem('user', JSON.stringify({ username: formData.username, name: formData.fullName }));
       toast({
         title: "Đăng ký thành công!",
         description: "Chào mừng bạn đến với SafeChat",
@@ -62,18 +52,16 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <nav className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary p-2">
-                <Shield className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">SafeChat</span>
+            <Link to="/" className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <span className="text-base font-semibold">SafeChat</span>
             </Link>
             <Link to="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-sm">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Quay lại
               </Button>
@@ -97,7 +85,7 @@ export default function Register() {
                   <Label htmlFor="fullName">Họ và tên *</Label>
                   <Input
                     id="fullName"
-                    placeholder="Nguyễn Văn A"
+                    placeholder="Nhập họ tên"
                     value={formData.fullName}
                     onChange={(e) => handleChange('fullName', e.target.value)}
                     required
@@ -105,43 +93,14 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Số điện thoại *</Label>
+                  <Label htmlFor="username">Tên đăng nhập *</Label>
                   <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="0912345678"
-                    value={formData.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
+                    id="username"
+                    placeholder="Nhập tên đăng nhập"
+                    value={formData.username}
+                    onChange={(e) => handleChange('username', e.target.value)}
                     required
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="student@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="school">Trường học *</Label>
-                  <Select value={formData.school} onValueChange={(value) => handleChange('school', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn trường" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {schools.map((school) => (
-                        <SelectItem key={school} value={school}>
-                          {school}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -149,7 +108,7 @@ export default function Register() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Nhập mật khẩu"
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                     required
@@ -161,7 +120,7 @@ export default function Register() {
                   <Input
                     id="confirmPassword"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Nhập lại mật khẩu"
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
                     required
@@ -173,7 +132,7 @@ export default function Register() {
                   <Input
                     id="parentPhone"
                     type="tel"
-                    placeholder="0987654321"
+                    placeholder="Nhập số điện thoại"
                     value={formData.parentPhone}
                     onChange={(e) => handleChange('parentPhone', e.target.value)}
                     required
@@ -185,7 +144,7 @@ export default function Register() {
                   <Input
                     id="teacherPhone"
                     type="tel"
-                    placeholder="0976543210"
+                    placeholder="Nhập số điện thoại"
                     value={formData.teacherPhone}
                     onChange={(e) => handleChange('teacherPhone', e.target.value)}
                     required

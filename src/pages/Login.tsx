@@ -12,7 +12,7 @@ export default function Login() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -22,7 +22,7 @@ export default function Login() {
 
     // Mock login
     setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ email: formData.email, name: "Nguyễn Văn A" }));
+      localStorage.setItem('user', JSON.stringify({ username: formData.username, name: "Nguyễn Văn A" }));
       toast({
         title: "Đăng nhập thành công!",
         description: "Chào mừng trở lại",
@@ -33,18 +33,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <nav className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary p-2">
-                <Shield className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">SafeChat</span>
+            <Link to="/" className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <span className="text-base font-semibold">SafeChat</span>
             </Link>
             <Link to="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-sm">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Quay lại
               </Button>
@@ -64,27 +62,19 @@ export default function Login() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="student@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  id="username"
+                  type="text"
+                  placeholder="nguyenvana"
+                  value={formData.username}
+                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Link 
-                    to="/reset-password" 
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Quên mật khẩu?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <Input
                   id="password"
                   type="password"

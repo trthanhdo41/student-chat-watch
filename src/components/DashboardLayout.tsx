@@ -75,12 +75,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-            <div className="rounded-xl bg-primary p-2">
-              <Shield className="h-6 w-6 text-primary-foreground" />
-            </div>
+          <div className="flex items-center gap-2 px-6 py-6 border-b border-border">
+            <Shield className="h-5 w-5" />
             <div>
-              <h1 className="font-bold text-lg">SafeChat</h1>
+              <h1 className="font-semibold text-base">SafeChat</h1>
               <p className="text-xs text-muted-foreground">Student Portal</p>
             </div>
           </div>

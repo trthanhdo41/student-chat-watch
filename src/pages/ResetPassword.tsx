@@ -29,18 +29,16 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <nav className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary p-2">
-                <Shield className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">SafeChat</span>
+            <Link to="/" className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <span className="text-base font-semibold">SafeChat</span>
             </Link>
             <Link to="/login">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-sm">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Quay lại đăng nhập
               </Button>
