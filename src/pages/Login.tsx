@@ -66,7 +66,7 @@ export default function Login() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="nguyenvana"
+                  placeholder="Nhập tên đăng nhập"
                   value={formData.username}
                   onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                   required
@@ -78,7 +78,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="Nhập mật khẩu"
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   required
