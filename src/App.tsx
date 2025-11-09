@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
+import ChatAnalysis from "./pages/dashboard/ChatAnalysis";
 import Dashboard from "./pages/dashboard/Dashboard";
 import UploadChat from "./pages/dashboard/UploadChat";
 import History from "./pages/dashboard/History";
@@ -32,7 +33,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><ChatAnalysis /></ProtectedRoute>} />
+              <Route path="/dashboard/stats" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/upload" element={<ProtectedRoute><UploadChat /></ProtectedRoute>} />
               <Route path="/dashboard/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
               <Route path="/dashboard/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />

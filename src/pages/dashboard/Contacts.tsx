@@ -1,31 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, Mail, User, Save } from "lucide-react";
+import { Phone, User, Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 export default function Contacts() {
   const { toast } = useToast();
+  const { user, userProfile } = useAuth();
   const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [contacts, setContacts] = useState({
-    parentName: "Nguyễn Văn B",
-    parentPhone: "0987654321",
-    parentEmail: "parent@example.com",
-    teacherName: "Trần Thị C",
-    teacherPhone: "0976543210",
-    teacherEmail: "teacher@example.com",
+    parentPhone: "",
+    teacherPhone: "",
   });
 
-  const handleSave = () => {
-    // Mock save
-    toast({
-      title: "Đã lưu thay đổi!",
-      description: "Thông tin liên hệ đã được cập nhật",
-    });
-    setEditing(false);
+  useEffect(() => {
+    if (userProfile) {
+      setContacts({
+        parentPhone: userProfile.parent_phone || "",
+        teacherPhone: userProfile.teacher_phone || "",
+      });
+    }
+  }, [userProfile]);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          parent_phone: contacts.parentPhone,
+          teacher_phone: contacts.teacherPhone,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Đã lưu thay đổi!",
+        description: "Thông tin liên hệ đã được cập nhật",
+      });
+      setEditing(false);
+    } catch (error: any) {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể cập nhật thông tin",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -62,42 +94,18 @@ export default function Contacts() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="parentName">Họ và tên</Label>
+            <div className="space-y-2">
+              <Label htmlFor="parentPhone">Số điện thoại phụ huynh</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="parentName"
-                  value={contacts.parentName}
-                  onChange={(e) => handleChange('parentName', e.target.value)}
+                  id="parentPhone"
+                  value={contacts.parentPhone}
+                  onChange={(e) => handleChange('parentPhone', e.target.value)}
                   disabled={!editing}
+                  className="pl-10"
+                  placeholder="Nhập số điện thoại phụ huynh"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="parentPhone">Số điện thoại</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="parentPhone"
-                    value={contacts.parentPhone}
-                    onChange={(e) => handleChange('parentPhone', e.target.value)}
-                    disabled={!editing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="parentEmail">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="parentEmail"
-                    type="email"
-                    value={contacts.parentEmail}
-                    onChange={(e) => handleChange('parentEmail', e.target.value)}
-                    disabled={!editing}
-                    className="pl-10"
-                  />
-                </div>
               </div>
             </div>
           </CardContent>
@@ -115,42 +123,18 @@ export default function Contacts() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="teacherName">Họ và tên</Label>
+            <div className="space-y-2">
+              <Label htmlFor="teacherPhone">Số điện thoại giáo viên</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="teacherName"
-                  value={contacts.teacherName}
-                  onChange={(e) => handleChange('teacherName', e.target.value)}
+                  id="teacherPhone"
+                  value={contacts.teacherPhone}
+                  onChange={(e) => handleChange('teacherPhone', e.target.value)}
                   disabled={!editing}
+                  className="pl-10"
+                  placeholder="Nhập số điện thoại giáo viên"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="teacherPhone">Số điện thoại</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="teacherPhone"
-                    value={contacts.teacherPhone}
-                    onChange={(e) => handleChange('teacherPhone', e.target.value)}
-                    disabled={!editing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="teacherEmail">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="teacherEmail"
-                    type="email"
-                    value={contacts.teacherEmail}
-                    onChange={(e) => handleChange('teacherEmail', e.target.value)}
-                    disabled={!editing}
-                    className="pl-10"
-                  />
-                </div>
               </div>
             </div>
           </CardContent>
@@ -159,14 +143,24 @@ export default function Contacts() {
         {/* Save Button */}
         {editing && (
           <div className="flex gap-4">
-            <Button onClick={handleSave} className="flex-1">
-              <Save className="mr-2 h-4 w-4" />
-              Lưu thay đổi
+            <Button onClick={handleSave} className="flex-1" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang lưu...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Lưu thay đổi
+                </>
+              )}
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setEditing(false)}
               className="flex-1"
+              disabled={loading}
             >
               Hủy
             </Button>

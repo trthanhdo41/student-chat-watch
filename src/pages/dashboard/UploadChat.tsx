@@ -101,9 +101,9 @@ export default function UploadChat() {
         {/* Upload Section */}
         <Card className="shadow-medium">
           <CardHeader>
-            <CardTitle>Tải ảnh lên</CardTitle>
+            <CardTitle>Chụp ảnh tin nhắn</CardTitle>
             <CardDescription>
-              Hỗ trợ các định dạng: JPG, PNG, JPEG
+              Em có thể tải ảnh dạng: JPG, PNG, JPEG
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -169,26 +169,26 @@ export default function UploadChat() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Kết quả phân tích</CardTitle>
-                <RiskBadge score={result.confidenceScore} size="lg" />
+                <RiskBadge riskLevel={result.riskLevel} size="lg" />
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Risk Level */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Mức độ rủi ro</span>
+                  <span className="text-sm font-medium">Mức độ nguy hiểm</span>
                   <span className={`text-2xl font-bold ${
                     result.riskLevel === 'low' ? 'text-green-600' :
                     result.riskLevel === 'medium' ? 'text-yellow-600' :
                     'text-red-600'
                   }`}>
-                    {result.riskLevel === 'low' ? 'Thấp' :
-                     result.riskLevel === 'medium' ? 'Trung bình' :
-                     'Cao'}
+                    {result.riskLevel === 'low' ? 'An toàn' :
+                     result.riskLevel === 'medium' ? 'Hơi lo' :
+                     'Nguy hiểm'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Độ tin cậy</span>
+                  <span className="text-sm font-medium">Độ chắc chắn</span>
                   <span className="text-lg font-semibold">{result.confidenceScore}%</span>
                 </div>
                 <Progress
@@ -212,8 +212,8 @@ export default function UploadChat() {
                     <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
                   )}
                   <div className="flex-1">
-                    <p className="font-semibold mb-1">Loại rủi ro: {result.riskType}</p>
-                    <AlertDescription className="text-sm">
+                    <p className="font-semibold mb-1 text-base">{result.riskType}</p>
+                    <AlertDescription className="text-sm leading-relaxed">
                       {result.summary}
                     </AlertDescription>
                   </div>
@@ -223,9 +223,9 @@ export default function UploadChat() {
               {/* Extracted Text */}
               {result.extractedText && (
                 <div>
-                  <h3 className="font-semibold mb-3">Nội dung đã trích xuất:</h3>
+                  <h3 className="font-semibold mb-3">Những lời trong tin nhắn:</h3>
                   <div className="bg-gray-50 p-4 rounded-lg border">
-                    <p className="text-sm whitespace-pre-wrap">{result.extractedText}</p>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{result.extractedText}</p>
                   </div>
                 </div>
               )}
@@ -233,10 +233,10 @@ export default function UploadChat() {
               {/* Actions */}
               <div className="flex gap-4 pt-4">
                 <Button onClick={handleClear} variant="outline" className="flex-1">
-                  Phân tích ảnh khác
+                  Kiểm tra ảnh khác
                 </Button>
                 <Button onClick={() => navigate('/dashboard/history')} className="flex-1">
-                  Xem lịch sử
+                  Xem lại các lần trước
                 </Button>
               </div>
             </CardContent>

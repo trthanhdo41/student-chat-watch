@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Demo - Chụp màn hình để test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 667px;
+            background: #fff;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .signal-icon {
+            display: flex;
+            gap: 1px;
+            align-items: flex-end;
+        }
+
+        .signal-bar {
+            width: 3px;
+            background: white;
+            border-radius: 1px;
+        }
+
+        .signal-bar:nth-child(1) { height: 4px; }
+        .signal-bar:nth-child(2) { height: 6px; }
+        .signal-bar:nth-child(3) { height: 8px; }
+        .signal-bar:nth-child(4) { height: 10px; }
+
+        .wifi-icon {
+            width: 15px;
+            height: 11px;
+            position: relative;
+        }
+
+        .wifi-icon::before,
+        .wifi-icon::after {
+            content: '';
+            position: absolute;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .wifi-icon::before {
+            width: 15px;
+            height: 15px;
+            border-bottom: none;
+            border-left: none;
+            border-right: none;
+            top: 0;
+            left: 0;
+        }
+
+        .wifi-icon::after {
+            width: 4px;
+            height: 4px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .battery-icon {
+            width: 24px;
+            height: 11px;
+            border: 1.5px solid white;
+            border-radius: 2px;
+            position: relative;
+            padding: 1.5px;
+        }
+
+        .battery-icon::before {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 5px;
+            background: white;
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-level {
+            height: 100%;
+            background: white;
+            border-radius: 1px;
+        }
+
+        .chat-header {
+            background: #0084ff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .chat-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-info p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .chat-body {
+            padding: 20px;
+            height: calc(100% - 158px);
+            overflow-y: auto;
+            background: #f0f2f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message.received .message-bubble {
+            background: #fff;
+            color: #000;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent .message-bubble {
+            background: #0084ff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #65676b;
+            margin-top: 4px;
+            padding: 0 5px;
+        }
+
+        .message.sent .message-time {
+            text-align: right;
+        }
+
+        .warning-message {
+            background: #ff3b30 !important;
+        }
+
+        .danger-message {
+            background: #ff9500 !important;
+        }
+
+        .chat-input {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 15px;
+            border-top: 1px solid #e4e6eb;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e4e6eb;
+            border-radius: 20px;
+            font-size: 14px;
+            background: #f0f2f5;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #0084ff;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .scenario-selector {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .scenario-selector h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .scenario-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .scenario-btn:hover {
+            background: #f0f2f5;
+            border-color: #0084ff;
+        }
+
+        .scenario-btn.active {
+            background: #0084ff;
+            color: white;
+            border-color: #0084ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="scenario-selector">
+        <h4>📱 Chọn kịch bản chat:</h4>
+        <button class="scenario-btn active" onclick="loadScenario('safe')">✅ An toàn</button>
+        <button class="scenario-btn" onclick="loadScenario('warning')">⚠️ Cảnh báo</button>
+        <button class="scenario-btn" onclick="loadScenario('danger')">🚨 Nguy hiểm</button>
+        <button class="scenario-btn" onclick="loadScenario('bullying')">😢 Bắt nạt</button>
+        <button class="scenario-btn" onclick="loadScenario('scam')">💰 Lừa đảo</button>
+    </div>
+
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="current-time">9:41</span>
+            </div>
+            <div class="status-right">
+                <div class="signal-icon">
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                </div>
+                <div class="wifi-icon"></div>
+                <div class="battery-icon">
+                    <div class="battery-level" style="width: 80%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-header">
+            <div class="avatar">N</div>
+            <div class="chat-info">
+                <h3 id="contact-name">Nguyễn Văn A</h3>
+                <p>Đang hoạt động</p>
+            </div>
+        </div>
+
+        <div class="chat-body" id="chat-body">
+            <!-- Messages will be loaded here -->
+        </div>
+
+        <div class="chat-input">
+            <input type="text" class="input-field" placeholder="Aa">
+            <button class="send-btn">➤</button>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = {
+            safe: {
+                name: 'Bạn học',
+                messages: [
+                    { type: 'received', text: 'Bài tập hôm nay khó quá!', time: '14:30' },
+                    { type: 'sent', text: 'Ừ, mình cũng chưa làm được bài 3', time: '14:31' },
+                    { type: 'received', text: 'Chiều nay mình làm chung nhé', time: '14:32' },
+                    { type: 'sent', text: 'Ok, 4h ở thư viện nhé', time: '14:33' },
+                    { type: 'received', text: 'Được, mình nhớ mang sách toán', time: '14:34' },
+                ]
+            },
+            warning: {
+                name: 'Người lạ',
+                messages: [
+                    { type: 'received', text: 'Chào em, anh thấy em xinh quá', time: '20:15' },
+                    { type: 'sent', text: 'Anh là ai ạ?', time: '20:16' },
+                    { type: 'received', text: 'Anh là bạn của bố em đó', time: '20:17', warning: true },
+                    { type: 'received', text: 'Cuối tuần này anh rủ em đi chơi nhé', time: '20:18', warning: true },
+                    { type: 'sent', text: 'Em không quen anh', time: '20:19' },
+                ]
+            },
+            danger: {
+                name: 'Số lạ',
+                messages: [
+                    { type: 'received', text: 'Em ơi, anh có ảnh của em đây', time: '22:30', danger: true },
+                    { type: 'received', text: 'Nếu không muốn anh tung lên mạng thì...', time: '22:31', danger: true },
+                    { type: 'sent', text: 'Anh là ai? Em không biết anh', time: '22:32' },
+                    { type: 'received', text: 'Chuyển cho anh 5 triệu là anh xóa', time: '22:33', danger: true },
+                    { type: 'sent', text: 'Em sẽ báo công an', time: '22:34' },
+                ]
+            },
+            bullying: {
+                name: 'Bạn cùng lớp',
+                messages: [
+                    { type: 'received', text: 'Mày nghĩ mày là ai?', time: '16:45', warning: true },
+                    { type: 'received', text: 'Mai đến trường tao cho mày một trận', time: '16:46', danger: true },
+                    { type: 'sent', text: 'Mình không làm gì sai mà', time: '16:47' },
+                    { type: 'received', text: 'Mày dám cáo cô tao là mày chết', time: '16:48', danger: true },
+                    { type: 'received', text: 'Nhớ mang tiền đến nhé, 500k', time: '16:49', danger: true },
+                ]
+            },
+            scam: {
+                name: 'Admin Group',
+                messages: [
+                    { type: 'received', text: 'Chúc mừng bạn đã trúng thưởng 50 triệu!', time: '10:00', warning: true },
+                    { type: 'received', text: 'Vui lòng cung cấp: Họ tên, CMND, STK', time: '10:01', danger: true },
+                    { type: 'sent', text: 'Thật không ạ?', time: '10:02' },
+                    { type: 'received', text: 'Có phí xử lý 2 triệu, chuyển trước nhé', time: '10:03', danger: true },
+                    { type: 'sent', text: 'Để em hỏi bố mẹ', time: '10:04' },
+                ]
+            }
+        };
+
+        function loadScenario(type) {
+            const scenario = scenarios[type];
+            const chatBody = document.getElementById('chat-body');
+            const contactName = document.getElementById('contact-name');
+            
+            // Update contact name
+            contactName.textContent = scenario.name;
+            
+            // Clear chat
+            chatBody.innerHTML = '';
+            
+            // Load messages
+            scenario.messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.type}`;
+                
+                let bubbleClass = 'message-bubble';
+                if (msg.warning) bubbleClass += ' warning-message';
+                if (msg.danger) bubbleClass += ' danger-message';
+                
+                messageDiv.innerHTML = `
+                    <div class="${bubbleClass}">${msg.text}</div>
+                `;
+                
+                chatBody.appendChild(messageDiv);
+            });
+            
+            // Update active button
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Scroll to bottom
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Update time every second
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+        }
+
+        // Load default scenario
+        window.onload = () => {
+            loadScenario('safe');
+            updateTime();
+            setInterval(updateTime, 1000);
+        };
+    </script>
+</body>
+</html>
+

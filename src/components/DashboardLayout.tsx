@@ -1,8 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Upload,
   History,
   Users,
   Settings,
@@ -12,6 +10,8 @@ import {
   Shield,
   Moon,
   Sun,
+  Sparkles,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
@@ -31,8 +32,8 @@ interface DashboardLayoutProps {
 }
 
 const navigation = [
-  { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Phân tích tin nhắn", href: "/dashboard/upload", icon: Upload },
+  { name: "Phân tích tin nhắn", href: "/dashboard", icon: Sparkles },
+  { name: "Thống kê", href: "/dashboard/stats", icon: BarChart3 },
   { name: "Lịch sử phân tích", href: "/dashboard/history", icon: History },
   { name: "Thông tin liên hệ", href: "/dashboard/contacts", icon: Users },
   { name: "Cài đặt", href: "/dashboard/settings", icon: Settings },
@@ -43,17 +44,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { userProfile, signOut } = useAuth();
 
-  const handleLogout = () => {
-    // Mock logout
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/login');
-  };
-
-  const user = {
-    name: "Nguyễn Văn A",
-    email: "student@example.com",
-    avatar: "",
   };
 
   return (
@@ -110,12 +105,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-muted/50">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={userProfile?.avatar || ''} />
+                <AvatarFallback>
+                  {userProfile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                <p className="text-sm font-medium truncate">{userProfile?.full_name || 'User'}</p>
+                <p className="text-xs text-muted-foreground truncate">{userProfile?.username || ''}</p>
               </div>
             </div>
           </div>
@@ -155,10 +152,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={userProfile?.avatar || ''} />
+                      <AvatarFallback>
+                        {userProfile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline">{user.name}</span>
+                    <span className="hidden md:inline">{userProfile?.full_name || 'User'}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

@@ -22,6 +22,7 @@ export default function Register() {
     confirmPassword: "",
     parentPhone: "",
     teacherPhone: "",
+    studentClass: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,7 +56,8 @@ export default function Register() {
         formData.password,
         formData.fullName,
         formData.parentPhone,
-        formData.teacherPhone
+        formData.teacherPhone,
+        formData.studentClass
       );
 
       toast({
@@ -203,6 +205,17 @@ export default function Register() {
                     placeholder="Nhập số điện thoại"
                     value={formData.teacherPhone}
                     onChange={(e) => handleChange('teacherPhone', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="studentClass">Lớp *</Label>
+                  <Input
+                    id="studentClass"
+                    placeholder="Ví dụ: 10A1"
+                    value={formData.studentClass}
+                    onChange={(e) => handleChange('studentClass', e.target.value)}
                     required
                   />
                 </div>

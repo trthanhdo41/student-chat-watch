@@ -5,34 +5,17 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // ============================================
 // GEMINI API CONFIGURATION
 // ============================================
-// Multiple Gemini API keys to avoid rate limits (round-robin)
-const GEMINI_API_KEYS = [
-  'AIzaSyAesiX24LOl1SPrKebQcziHQayBI7g32Mc',
-  'AIzaSyBmOOPu7J_4HzEGhzS8luDJ9lvu5wKEifU',
-  'AIzaSyAaIVgZNVgFp9Id9caFgw78nIIMa285n1k',
-];
-
-let currentKeyIndex = 0;
+const GEMINI_API_KEY = 'AIzaSyA6dvwmdANioiQLHSiciWokQWkoFLZkKec';
 
 /**
- * Get next Gemini API key (round-robin)
- */
-function getNextGeminiKey(): string {
-  const key = GEMINI_API_KEYS[currentKeyIndex];
-  currentKeyIndex = (currentKeyIndex + 1) % GEMINI_API_KEYS.length;
-  return key;
-}
-
-/**
- * Get Gemini client with next API key
+ * Get Gemini client
  */
 function getGeminiClient() {
-  const apiKey = getNextGeminiKey();
-  return new GoogleGenerativeAI(apiKey);
+  return new GoogleGenerativeAI(GEMINI_API_KEY);
 }
 
 // ============================================
-// AI ANALYSIS SERVICE WITH GEMINI 2.5 FLASH
+// AI ANALYSIS SERVICE WITH GEMINI 2.0 FLASH THINKING
 // ============================================
 
 interface AnalysisResult {
@@ -44,15 +27,15 @@ interface AnalysisResult {
 }
 
 /**
- * Analyze image using Gemini 2.5 Flash Vision
+ * Analyze image using Gemini 2.0 Flash Thinking Exp (best for vision analysis)
  * Gemini can read text from image AND analyze content in one call
  */
 async function analyzeImageWithGemini(imageUrl: string): Promise<AnalysisResult> {
   try {
-    console.log('Analyzing image with Gemini 2.5 Flash:', imageUrl);
+    console.log('Analyzing image with Gemini 2.0 Flash Thinking:', imageUrl);
 
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-thinking-exp-1219' });
 
     // Fetch image as base64
     const response = await fetch(imageUrl);
@@ -66,32 +49,32 @@ async function analyzeImageWithGemini(imageUrl: string): Promise<AnalysisResult>
       reader.readAsDataURL(blob);
     });
 
-    const prompt = `Bạn là một AI chuyên phân tích nội dung tin nhắn để bảo vệ học sinh khỏi các rủi ro trực tuyến.
+    const prompt = `Bạn là trợ lý AI giúp bảo vệ các em học sinh tiểu học (lớp 1-5) khi chat online.
 
-Hãy phân tích ảnh chụp màn hình cuộc trò chuyện này và:
-1. Đọc toàn bộ nội dung văn bản trong ảnh
-2. Đánh giá mức độ rủi ro cho học sinh
-3. Xác định loại rủi ro (nếu có)
+Hãy đọc ảnh tin nhắn này và cho em biết:
+1. Trong ảnh có những lời nào? (đọc hết chữ trong ảnh)
+2. Tin nhắn này có an toàn không?
+3. Có điều gì em cần cẩn thận không?
 
-CÁC LOẠI RỦI RO CẦN PHÁT HIỆN:
-- **scam**: Lừa đảo, yêu cầu chuyển tiền, mua hàng đa cấp, quảng cáo sản phẩm không rõ nguồn gốc
-- **bullying**: Bắt nạt, chửi bới, đe dọa, xúc phạm, kỳ thị
-- **harassment**: Quấy rối tình dục, gạ gẫm, yêu cầu gửi ảnh nhạy cảm
-- **inappropriate**: Nội dung không phù hợp với lứa tuổi (bạo lực, khiêu dâm, ma túy, rượu bia)
-- **safe**: Nội dung an toàn, bình thường
+CÁC TÌNH HUỐNG NGUY HIỂM CẦN PHÁT HIỆN:
+- **lừa đảo**: Người lạ bảo em chuyển tiền, mua đồ, cho số điện thoại/địa chỉ nhà
+- **bắt nạt**: Bạn chửi em, nói xấu em, đe dọa em, làm em buồn
+- **người lạ xấu**: Người lớn lạ rủ em đi chơi, gặp mặt, gửi ảnh, nói chuyện kỳ lạ
+- **không phù hợp**: Có hình ảnh/lời nói về đánh nhau, cảnh xấu, thuốc lá, rượu
+- **an toàn**: Tin nhắn bình thường, chat với bạn bè, gia đình
 
-MỨC ĐỘ RỦI RO:
-- **high**: Nguy hiểm cao, cần cảnh báo ngay lập tức (lừa đảo, quấy rối, đe dọa)
-- **medium**: Cần chú ý, nên trao đổi với phụ huynh/giáo viên (nội dung không phù hợp, ngôn từ tiêu cực)
-- **low**: An toàn, không có vấn đề
+MỨC ĐỘ NGUY HIỂM:
+- **high**: RẤT NGUY HIỂM! Em cần nói với bố mẹ/cô giáo NGAY (lừa đảo, người lạ xấu, bị đe dọa)
+- **medium**: Hơi lo! Em nên nói với bố mẹ/cô giáo (bạn nói xấu, nội dung không tốt)
+- **low**: An toàn, không sao cả!
 
-Trả về kết quả dưới dạng JSON với format SAU ĐÂY (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
+Trả lời bằng JSON (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
 {
-  "extractedText": "Toàn bộ nội dung văn bản đọc được từ ảnh",
+  "extractedText": "Ghi lại toàn bộ chữ trong ảnh",
   "riskLevel": "high" | "medium" | "low",
-  "riskType": "scam" | "bullying" | "harassment" | "inappropriate" | "safe",
+  "riskType": "lừa đảo" | "bắt nạt" | "người lạ xấu" | "không phù hợp" | "an toàn",
   "confidenceScore": 0-100,
-  "summary": "Tóm tắt ngắn gọn về nội dung và lý do đánh giá rủi ro"
+  "summary": "Giải thích ngắn gọn bằng tiếng Việt đơn giản cho học sinh lớp 1-5 hiểu được"
 }`;
 
     const result = await model.generateContent([
@@ -125,14 +108,8 @@ Trả về kết quả dưới dạng JSON với format SAU ĐÂY (KHÔNG thêm 
   } catch (error: any) {
     console.error('Gemini analysis error:', error);
 
-    // Fallback to safe result on error
-    return {
-      extractedText: 'Lỗi khi phân tích ảnh',
-      riskLevel: 'low',
-      riskType: 'safe',
-      confidenceScore: 0,
-      summary: `Không thể phân tích: ${error.message}`,
-    };
+    // Throw error instead of returning fallback - let caller handle it
+    throw new Error(`Gemini API Error: ${error.message || 'Unknown error'}`);
   }
 }
 

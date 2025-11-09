@@ -101,9 +101,9 @@ export default function History() {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Lịch sử phân tích</h1>
+          <h1 className="text-3xl font-bold mb-2">Các lần kiểm tra trước</h1>
           <p className="text-muted-foreground">
-            Xem lại tất cả các phân tích tin nhắn đã thực hiện
+            Xem lại những tin nhắn em đã kiểm tra
           </p>
         </div>
 
@@ -183,6 +183,10 @@ export default function History() {
                               alt="Chat screenshot"
                               className="w-12 h-12 rounded-lg object-cover cursor-pointer hover:opacity-80"
                               onClick={() => setSelectedItem(item)}
+                              onError={(e) => {
+                                console.error('Image load error:', item.image_url);
+                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"%3E%3Crect x="3" y="3" width="18" height="18" rx="2" ry="2"%3E%3C/rect%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"%3E%3C/circle%3E%3Cpolyline points="21 15 16 10 5 21"%3E%3C/polyline%3E%3C/svg%3E';
+                              }}
                             />
                           </TableCell>
                           <TableCell>
@@ -194,9 +198,9 @@ export default function History() {
                               analysis?.risk_level === 'medium' ? 'text-yellow-600' :
                               'text-red-600'
                             }`}>
-                              {analysis?.risk_level === 'low' ? 'Thấp' :
-                               analysis?.risk_level === 'medium' ? 'Trung bình' :
-                               analysis?.risk_level === 'high' ? 'Cao' : '-'}
+                              {analysis?.risk_level === 'low' ? 'An toàn' :
+                               analysis?.risk_level === 'medium' ? 'Hơi lo' :
+                               analysis?.risk_level === 'high' ? 'Nguy hiểm' : '-'}
                             </span>
                           </TableCell>
                           <TableCell>
@@ -206,7 +210,7 @@ export default function History() {
                           </TableCell>
                           <TableCell>
                             {item.status === 'analyzed' ? (
-                              <RiskBadge score={analysis?.confidence_score || 0} />
+                              <RiskBadge riskLevel={analysis?.risk_level || 'low'} />
                             ) : item.status === 'analyzing' ? (
                               <span className="text-sm text-blue-600">Đang phân tích...</span>
                             ) : item.status === 'error' ? (
@@ -258,54 +262,57 @@ export default function History() {
                   src={selectedItem.image_url}
                   alt="Chat screenshot"
                   className="w-full rounded-lg border"
+                  onError={(e) => {
+                    console.error('Image load error in dialog:', selectedItem.image_url);
+                  }}
                 />
                 {selectedItem.ai_analysis?.[0] ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm font-medium text-muted-foreground">Mức độ rủi ro:</span>
+                        <span className="text-sm font-medium text-muted-foreground">Mức độ nguy hiểm:</span>
                         <p className={`text-xl font-bold mt-1 ${
                           selectedItem.ai_analysis[0].risk_level === 'low' ? 'text-green-600' :
                           selectedItem.ai_analysis[0].risk_level === 'medium' ? 'text-yellow-600' :
                           'text-red-600'
                         }`}>
-                          {selectedItem.ai_analysis[0].risk_level === 'low' ? 'Thấp' :
-                           selectedItem.ai_analysis[0].risk_level === 'medium' ? 'Trung bình' :
-                           'Cao'}
+                          {selectedItem.ai_analysis[0].risk_level === 'low' ? 'An toàn' :
+                           selectedItem.ai_analysis[0].risk_level === 'medium' ? 'Hơi lo' :
+                           'Nguy hiểm'}
                         </p>
                       </div>
                       <div>
-                        <span className="text-sm font-medium text-muted-foreground">Loại rủi ro:</span>
+                        <span className="text-sm font-medium text-muted-foreground">Tình huống:</span>
                         <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].risk_type}</p>
                       </div>
                       <div>
-                        <span className="text-sm font-medium text-muted-foreground">Độ tin cậy:</span>
+                        <span className="text-sm font-medium text-muted-foreground">Độ chắc chắn:</span>
                         <p className="text-xl font-bold mt-1">{selectedItem.ai_analysis[0].confidence_score}%</p>
                       </div>
                       <div>
-                        <span className="text-sm font-medium text-muted-foreground">Trạng thái:</span>
-                        <RiskBadge score={selectedItem.ai_analysis[0].confidence_score} size="lg" />
+                        <span className="text-sm font-medium text-muted-foreground">Kết quả:</span>
+                        <RiskBadge riskLevel={selectedItem.ai_analysis[0].risk_level} size="lg" />
                       </div>
                     </div>
 
                     <div>
-                      <span className="font-medium">Tóm tắt:</span>
-                      <p className="text-muted-foreground mt-2 p-4 bg-gray-50 rounded-lg border">
+                      <span className="font-medium">Giải thích:</span>
+                      <p className="text-muted-foreground mt-2 p-4 bg-gray-50 rounded-lg border leading-relaxed">
                         {selectedItem.ai_analysis[0].summary}
                       </p>
                     </div>
 
                     {selectedItem.ai_analysis[0].extracted_text && (
                       <div>
-                        <span className="font-medium">Nội dung đã trích xuất:</span>
-                        <p className="text-sm text-muted-foreground mt-2 p-4 bg-gray-50 rounded-lg border whitespace-pre-wrap">
+                        <span className="font-medium">Những lời trong tin nhắn:</span>
+                        <p className="text-sm text-muted-foreground mt-2 p-4 bg-gray-50 rounded-lg border whitespace-pre-wrap leading-relaxed">
                           {selectedItem.ai_analysis[0].extracted_text}
                         </p>
                       </div>
                     )}
 
                     <div className="text-xs text-muted-foreground">
-                      Phân tích vào: {new Date(selectedItem.ai_analysis[0].analyzed_at).toLocaleString('vi-VN')}
+                      Kiểm tra lúc: {new Date(selectedItem.ai_analysis[0].analyzed_at).toLocaleString('vi-VN')}
                     </div>
                   </div>
                 ) : (

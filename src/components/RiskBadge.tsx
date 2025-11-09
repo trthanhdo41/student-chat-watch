@@ -2,23 +2,23 @@ import { AlertCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { Badge } from "./ui/badge";
 
 interface RiskBadgeProps {
-  score: number;
+  riskLevel: 'high' | 'medium' | 'low';
   size?: "default" | "lg";
 }
 
-export const RiskBadge = ({ score, size = "default" }: RiskBadgeProps) => {
-  const getRiskLevel = () => {
-    if (score < 30) return { label: "An toàn", variant: "success", icon: CheckCircle };
-    if (score < 70) return { label: "Cần chú ý", variant: "warning", icon: AlertTriangle };
+export const RiskBadge = ({ riskLevel, size = "default" }: RiskBadgeProps) => {
+  const getRiskConfig = () => {
+    if (riskLevel === 'low') return { label: "An toàn", variant: "success", icon: CheckCircle };
+    if (riskLevel === 'medium') return { label: "Hơi lo", variant: "warning", icon: AlertTriangle };
     return { label: "Nguy hiểm", variant: "destructive", icon: AlertCircle };
   };
 
-  const risk = getRiskLevel();
+  const risk = getRiskConfig();
   const Icon = risk.icon;
   const sizeClass = size === "lg" ? "text-base px-4 py-2" : "text-sm";
 
   return (
-    <Badge 
+    <Badge
       variant={risk.variant as any}
       className={`flex items-center gap-2 ${sizeClass}`}
     >
