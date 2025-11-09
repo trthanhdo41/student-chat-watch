@@ -177,37 +177,50 @@ export default function UploadChat() {
 
         {/* Results */}
         {result && (
-          <Card className={`shadow-strong animate-scale-in border-2 ${
-            result.riskLevel === 'low' ? 'border-green-200 bg-green-50/50 dark:bg-green-950/20' :
-            result.riskLevel === 'medium' ? 'border-yellow-200 bg-yellow-50/50 dark:bg-yellow-950/20' :
-            'border-red-200 bg-red-50/50 dark:bg-red-950/20'
-          }`}>
-            <CardHeader>
-              <div className="flex flex-col items-center text-center gap-4">
-                <div className={`p-4 rounded-full ${
-                  result.riskLevel === 'low' ? 'bg-green-100 dark:bg-green-900' :
-                  result.riskLevel === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900' :
-                  'bg-red-100 dark:bg-red-900'
-                }`}>
-                  {result.riskLevel === 'low' ? (
-                    <CheckCircle className="h-12 w-12 text-green-600" />
-                  ) : result.riskLevel === 'medium' ? (
-                    <AlertTriangle className="h-12 w-12 text-yellow-600" />
-                  ) : (
-                    <AlertTriangle className="h-12 w-12 text-red-600" />
-                  )}
+          <>
+            {/* DEBUG INFO - REMOVE LATER */}
+            <div className="bg-yellow-100 border-2 border-yellow-500 p-4 rounded text-xs font-mono">
+              <div>DEBUG INFO:</div>
+              <div>result.riskLevel: "{result.riskLevel}"</div>
+              <div>typeof: {typeof result.riskLevel}</div>
+              <div>length: {result.riskLevel.length}</div>
+              <div>equals 'low': {String(result.riskLevel === 'low')}</div>
+              <div>equals 'medium': {String(result.riskLevel === 'medium')}</div>
+              <div>equals 'high': {String(result.riskLevel === 'high')}</div>
+              <div>charCodes: {Array.from(result.riskLevel).map(c => c.charCodeAt(0)).join(',')}</div>
+            </div>
+
+            <Card className={`shadow-strong animate-scale-in border-2 ${
+              result.riskLevel === 'low' ? 'border-green-200 bg-green-50/50 dark:bg-green-950/20' :
+              result.riskLevel === 'medium' ? 'border-yellow-200 bg-yellow-50/50 dark:bg-yellow-950/20' :
+              'border-red-200 bg-red-50/50 dark:bg-red-950/20'
+            }`}>
+              <CardHeader>
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className={`p-4 rounded-full ${
+                    result.riskLevel === 'low' ? 'bg-green-100 dark:bg-green-900' :
+                    result.riskLevel === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900' :
+                    'bg-red-100 dark:bg-red-900'
+                  }`}>
+                    {result.riskLevel === 'low' ? (
+                      <CheckCircle className="h-12 w-12 text-green-600" />
+                    ) : result.riskLevel === 'medium' ? (
+                      <AlertTriangle className="h-12 w-12 text-yellow-600" />
+                    ) : (
+                      <AlertTriangle className="h-12 w-12 text-red-600" />
+                    )}
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl mb-2">
+                      {result.riskLevel === 'low' ? 'Tin nhắn an toàn!' :
+                       result.riskLevel === 'medium' ? 'Cần cẩn thận!' :
+                       'Nguy hiểm!'}
+                    </CardTitle>
+                    <RiskBadge riskLevel={result.riskLevel} size="lg" />
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-2xl mb-2">
-                    {result.riskLevel === 'low' ? 'Tin nhắn an toàn!' :
-                     result.riskLevel === 'medium' ? 'Cần cẩn thận!' :
-                     'Nguy hiểm!'}
-                  </CardTitle>
-                  <RiskBadge riskLevel={result.riskLevel} size="lg" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </CardHeader>
+              <CardContent className="space-y-6">
               {/* Confidence Score */}
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Độ chắc chắn</p>
@@ -265,6 +278,7 @@ export default function UploadChat() {
               </div>
             </CardContent>
           </Card>
+          </>
         )}
       </div>
     </DashboardLayout>
