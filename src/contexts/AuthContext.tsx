@@ -67,9 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     parentPhone: string,
     teacherPhone: string
   ) => {
-    // Create auth user with email format (username@safechat.local)
-    const email = `${username}@safechat.local`;
-    
+    // Create auth user with email format (username@safechat.app)
+    // Using .app domain to pass Supabase email validation
+    const email = `${username}@safechat.app`;
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -93,8 +94,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (username: string, password: string) => {
-    const email = `${username}@safechat.local`;
-    
+    const email = `${username}@safechat.app`;
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
