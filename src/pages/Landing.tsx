@@ -160,7 +160,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/register">
               <Button size="lg" className="bg-black hover:bg-gray-800 text-white h-12 px-6 text-base">
-                Dùng thử miễn phí
+                Bắt đầu ngay
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -171,7 +171,7 @@ export default function Landing() {
           </div>
 
           <p className="text-sm text-gray-500">
-            Miễn phí cho 100 tin nhắn đầu tiên • Không cần thẻ tín dụng
+            Hoàn toàn miễn phí • Không giới hạn • Không cần thẻ tín dụng
           </p>
         </div>
 
@@ -643,12 +643,12 @@ export default function Landing() {
             Bắt đầu bảo vệ con em bạn ngay hôm nay
           </h2>
           <p className="text-xl text-gray-600">
-            Miễn phí cho 100 tin nhắn đầu tiên. Không cần thẻ tín dụng.
+            Hoàn toàn miễn phí. Không giới hạn. Không cần thẻ tín dụng.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/register">
               <Button size="lg" className="bg-black hover:bg-gray-800 text-white h-12 px-6 text-base">
-                Dùng thử miễn phí
+                Đăng ký miễn phí
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -668,7 +668,7 @@ export default function Landing() {
               <h3 className="font-semibold text-sm mb-3">Sản phẩm</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><a href="#" className="hover:text-black transition-colors">Tính năng</a></li>
-                <li><a href="#" className="hover:text-black transition-colors">Bảng giá</a></li>
+                <li><a href="#" className="hover:text-black transition-colors">Hướng dẫn</a></li>
                 <li><a href="#" className="hover:text-black transition-colors">Câu hỏi</a></li>
               </ul>
             </div>
