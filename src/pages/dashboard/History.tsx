@@ -172,6 +172,15 @@ export default function History() {
                     {filteredHistory.map((item) => {
                       const analysis = item.ai_analysis?.[0];
 
+                      // DEBUG: Log analysis data
+                      console.log('=== HISTORY ITEM DEBUG ===');
+                      console.log('item.id:', item.id);
+                      console.log('analysis:', analysis);
+                      console.log('analysis.riskLevel:', analysis?.riskLevel);
+                      console.log('analysis.riskType:', analysis?.riskType);
+                      console.log('analysis.risk_level:', (analysis as any)?.risk_level);
+                      console.log('analysis.risk_type:', (analysis as any)?.risk_type);
+
                       return (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">
