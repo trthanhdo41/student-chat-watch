@@ -33,10 +33,10 @@ interface AnalysisResult {
  */
 async function analyzeImageWithGemini(imageUrl: string): Promise<AnalysisResult> {
   try {
-    console.log('Analyzing image with Gemini 2.0 Flash Thinking:', imageUrl);
+    console.log('Analyzing image with Gemini 1.5 Flash:', imageUrl);
 
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-thinking-exp-1219' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Fetch image as base64
     const response = await fetch(imageUrl);
