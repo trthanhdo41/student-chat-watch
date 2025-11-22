@@ -209,6 +209,42 @@ export async function analyzeImage(uploadId: string, imageUrl: string): Promise<
     // Update upload status to analyzed
     await updateUploadStatus(uploadId, 'analyzed');
 
+    // Send alert to N8N if risk level is high or medium
+    if (shouldSendAlert(analysis.riskLevel)) {
+      try {
+        // Get upload info to get user_id
+        const { data: upload } = await supabase
+          .from('chat_uploads')
+          .select('user_id')
+          .eq('id', uploadId)
+          .single();
+
+        if (upload) {
+          // Get user profile for alert
+          const profile = await getUserProfileForAlert(upload.user_id);
+          
+          if (profile) {
+            await sendAlertToN8n({
+              studentName: profile.full_name,
+              studentClass: profile.student_class || 'Chưa cập nhật',
+              riskLevel: analysis.riskLevel,
+              riskType: analysis.riskType,
+              confidenceScore: analysis.confidenceScore,
+              extractedText: analysis.extractedText,
+              summary: analysis.summary,
+              imageUrl: imageUrl,
+              timestamp: new Date().toISOString(),
+              parentPhone: profile.parent_phone,
+              teacherPhone: profile.teacher_phone,
+            });
+          }
+        }
+      } catch (alertError) {
+        console.error('Error sending alert:', alertError);
+        // Don't throw - analysis was successful even if alert failed
+      }
+    }
+
     return analysis;
   } catch (error) {
     console.error('Analysis error:', error);
