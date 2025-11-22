@@ -17,6 +17,7 @@ import History from "./pages/dashboard/History";
 import Contacts from "./pages/dashboard/Contacts";
 import Settings from "./pages/dashboard/Settings";
 import NotFound from "./pages/NotFound";
+import { SafeStudentChatBot } from "./components/SafeStudentChatBot";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <SafeStudentChatBot />
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
