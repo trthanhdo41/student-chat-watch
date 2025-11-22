@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // GEMINI API CONFIGURATION
 // Updated: 2024-11-21 - New Account
 // ============================================
-const GEMINI_API_KEY = 'AIzaSyBW65dSK1gd7lnjJO0ESK6VTJDAf_Za1fw';
+const GEMINI_API_KEY = 'AIzaSyDpYuWJVAk1ffMF9SnCtUm09uexfnt1G50';
 
 /**
  * Get Gemini client
