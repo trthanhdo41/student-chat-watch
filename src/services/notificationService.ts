@@ -62,9 +62,9 @@ export async function sendAlertToN8n(alertData: AlertData): Promise<boolean> {
 export async function getUserProfileForAlert(userId: string) {
   try {
     const { data: profile, error } = await supabase
-      .from('user_profiles')
+      .from('users')
       .select('full_name, student_class, parent_phone, teacher_phone')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .single();
 
     if (error) throw error;
