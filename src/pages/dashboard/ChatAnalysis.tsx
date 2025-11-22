@@ -252,6 +252,11 @@ export default function ChatAnalysis() {
                       </div>
                     )}
 
+                    <div className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-sm font-medium mb-1">Độ tin cậy</p>
+                      <p className="text-sm text-muted-foreground">{analysis.confidenceScore}%</p>
+                    </div>
+
                     {analysis.extractedText && (
                       <div className="p-3 rounded-lg bg-muted/50">
                         <p className="text-sm font-medium mb-1">Nội dung tin nhắn</p>
