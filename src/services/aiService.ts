@@ -1,10 +1,13 @@
 import { supabase } from '@/lib/supabase';
 import { updateUploadStatus } from './uploadService';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { sendAlertToN8n } from './notificationService';
+import { getUserProfileForAlert } from './notificationService';
+import { shouldSendAlert } from './notificationService';
 
 // ============================================
 // GEMINI API CONFIGURATION
-// Updated: 2024-11-21 - Working Key
+// Updated: 2024-11-22 - Working Key
 // ============================================
 const GEMINI_API_KEY = 'AIzaSyAqFGk0fkww_TczcSn4ks65NoUpkwQIijw';
 
