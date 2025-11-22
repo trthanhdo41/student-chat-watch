@@ -34,14 +34,41 @@ export async function sendAlertToN8n(alertData: AlertData): Promise<boolean> {
   }
 
   try {
-    console.log('Sending alert to N8N:', alertData);
+    // Transform data to match N8N workflow structure
+    const n8nPayload = {
+      student: {
+        name: alertData.studentName,
+        class: alertData.studentClass,
+      },
+      alert: {
+        riskLevel: alertData.riskLevel,
+        riskType: alertData.riskType,
+        confidenceScore: alertData.confidenceScore,
+        timestamp: alertData.timestamp,
+      },
+      content: {
+        extractedText: alertData.extractedText,
+        summary: alertData.summary,
+        imageUrl: alertData.imageUrl,
+      },
+      recipients: {
+        parent: {
+          phone: alertData.parentPhone || '',
+        },
+        teacher: {
+          phone: alertData.teacherPhone || '',
+        },
+      },
+    };
+
+    console.log('Sending alert to N8N:', n8nPayload);
 
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(alertData),
+      body: JSON.stringify(n8nPayload),
     });
 
     if (!response.ok) {
