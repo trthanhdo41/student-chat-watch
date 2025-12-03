@@ -75,15 +75,15 @@ CÁCH NÓI CHUYỆN:
         }));
 
       const response = await fetch(
-        `https://v98store.com/v1/chat/completions`,
+        `https://api.groq.com/openai/v1/chat/completions`,
         {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer sk-LWQpkAwZ8DDsOZGI1ltmFhxBlliQBvl3trzGOrUPwgy0FR2J'
+            'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
           },
           body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: 'llama-3.3-70b-versatile',
             messages: [
               { role: 'system', content: systemPrompt },
               ...conversationHistory,
