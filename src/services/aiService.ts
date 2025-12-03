@@ -9,7 +9,7 @@ import { shouldSendAlert } from './notificationService';
 // GEMINI API CONFIGURATION
 // Updated: 2024-11-22 - Latest Deploy
 // ============================================
-const GEMINI_API_KEY = 'AIzaSyDl1CK21N6eBMoEuqZGoep4klfeFZ-f4dM';
+const GEMINI_API_KEY = 'AIzaSyAbCgecSY8nQhxQ46QsOO0H-XoQSinSivI';
 
 /**
  * Get Gemini client
