@@ -233,7 +233,6 @@ export default function ChatAnalysis() {
                 <Card className="flex-1 p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold">Kết quả phân tích</h3>
-                    <RiskBadge score={analysis.confidenceScore} />
                   </div>
 
                   <div className="space-y-3">
