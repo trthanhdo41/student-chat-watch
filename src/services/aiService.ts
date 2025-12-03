@@ -7,7 +7,7 @@ import { shouldSendAlert } from './notificationService';
 
 // ============================================
 // GEMINI API CONFIGURATION
-// Updated: 2024-11-22 - Working Key
+// Updated: 2024-11-22 - Latest Deploy
 // ============================================
 const GEMINI_API_KEY = 'AIzaSyCZf7OdMcFASdtQ536mq00hhjBhNjVM1A4';
 
